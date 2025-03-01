@@ -1,7 +1,9 @@
 package com.example.employeems.controller;
 
+import aj.org.objectweb.asm.commons.Remapper;
 import com.example.employeems.dto.EmployeeDTO;
 import com.example.employeems.dto.ResponseDTO;
+import com.example.employeems.entity.Employee;
 import com.example.employeems.service.EmployeeService;
 import com.example.employeems.util.VarList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,6 +108,29 @@ public class EmployeeController {
             responseDTO.setContent(null);
             return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
 
+        }
+    }
+
+    @GetMapping("/searchEmployee/{empID}")
+    public ResponseEntity searchEmployee(@PathVariable int empID){
+        try {
+            EmployeeDTO employeeDTO = employeeService.searchEmployee(empID);
+            if (employeeDTO !=null) {
+                responseDTO.setCode(VarList.RSP_SUCCESS);
+                responseDTO.setMessage("Success");
+                responseDTO.setContent(employeeDTO);
+                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
+            } else {
+                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
+                responseDTO.setMessage("No Employee Available For this empID");
+                responseDTO.setContent(null);
+                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            responseDTO.setCode(VarList.RSP_ERROR);
+            responseDTO.setMessage(e.getMessage());
+            responseDTO.setContent(e);
+            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
