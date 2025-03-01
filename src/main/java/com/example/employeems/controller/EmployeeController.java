@@ -1,9 +1,7 @@
 package com.example.employeems.controller;
 
-import aj.org.objectweb.asm.commons.Remapper;
 import com.example.employeems.dto.EmployeeDTO;
 import com.example.employeems.dto.ResponseDTO;
-import com.example.employeems.entity.Employee;
 import com.example.employeems.service.EmployeeService;
 import com.example.employeems.util.VarList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +22,7 @@ public class EmployeeController {
     @Autowired
     private ResponseDTO responseDTO;
 
-    @PostMapping(value = "saveEmployee")
+    @PostMapping(path = "/save")
 
     public ResponseEntity saveEmployee(@RequestBody EmployeeDTO employeeDTO){
         try{
@@ -93,7 +91,7 @@ public class EmployeeController {
 
     }
 
-    @GetMapping(value = "/updateEmployee")
+    @GetMapping("/getAllEmployees")
     public ResponseEntity getAllEmployees(){
         try {
             List<EmployeeDTO> employeeDTOList = employeeService.getAllEmployee();
@@ -119,6 +117,29 @@ public class EmployeeController {
                 responseDTO.setCode(VarList.RSP_SUCCESS);
                 responseDTO.setMessage("Success");
                 responseDTO.setContent(employeeDTO);
+                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
+            } else {
+                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
+                responseDTO.setMessage("No Employee Available For this empID");
+                responseDTO.setContent(null);
+                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            responseDTO.setCode(VarList.RSP_ERROR);
+            responseDTO.setMessage(e.getMessage());
+            responseDTO.setContent(e);
+            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/deleteEmployee/{empID}")
+    public ResponseEntity deleteEmployee(@PathVariable int empID){
+        try {
+            String res = employeeService.deleteEmployee(empID);
+            if (res.equals("00")) {
+                responseDTO.setCode(VarList.RSP_SUCCESS);
+                responseDTO.setMessage("Success");
+                responseDTO.setContent(null);
                 return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
             } else {
                 responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
